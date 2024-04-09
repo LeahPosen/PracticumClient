@@ -103,7 +103,6 @@
 // });
 // export default Edit;
 
-
 //שני עובד מעולה, אני מחליפה עיצוב
 // import * as React from 'react';
 // import { useContext, useState, useEffect } from 'react';
@@ -132,9 +131,6 @@
 // import RadioGroup from '@mui/material/RadioGroup';
 // import FormControlLabel from '@mui/material/FormControlLabel';
 // import CollapsibleTable from './Roles';
-
-
-
 
 // const Edit = observer(() => {
 //   const { id } = useParams();
@@ -167,7 +163,7 @@
 //         lastName: w.lastName || '',
 //         birthDate: w.birthDate || '',
 //         startWorking: w.startWorking || '',
-//         gender: w.gender 
+//         gender: w.gender
 //       });
 //     }
 //   }, [w]);
@@ -241,7 +237,6 @@
 //             <Input value={formData.startWorking} type="datetime-local" name="startWorking" onChange={handleInputChange} />
 //           </FormControl>
 
-
 //           <FormControl>
 //             <FormLabel id="demo-controlled-radio-buttons-group">Gender</FormLabel>
 //             <RadioGroup
@@ -254,7 +249,6 @@
 //               <FormControlLabel value={1} control={<Radio />} label="Female" />
 //             </RadioGroup>
 //           </FormControl>
-
 
 //           <CollapsibleTable/>
 //         </CardContent>
@@ -277,129 +271,158 @@
 
 // export default Edit;
 
-
 //יש בעיה בשמירת הנתונים בטופס ולכן אני מחליפה להוק
-import * as React from 'react';
-import { useState, useEffect, createContext } from 'react';
-import { observer } from 'mobx-react-lite';
-import worker from '../data/worker';
-import Roles from './Roles';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { FormControl, Button } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person';
-import Input from '@mui/joy/Input';
-import FormLabel from '@mui/joy/FormLabel';
-import Card from '@mui/joy/Card';
-import CardActions from '@mui/joy/CardActions';
-import CardContent from '@mui/joy/CardContent';
-import Typography from '@mui/joy/Typography';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import * as React from "react"
+import { useState, useEffect, createContext } from "react"
+import { observer } from "mobx-react-lite"
+import worker from "../data/worker"
+import Roles from "./Roles"
+import { useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
+import { useForm } from "react-hook-form"
+import { FormControl, Button } from "@mui/material"
+import PersonIcon from "@mui/icons-material/Person"
+import Input from "@mui/joy/Input"
+import FormLabel from "@mui/joy/FormLabel"
+import Card from "@mui/joy/Card"
+import CardActions from "@mui/joy/CardActions"
+import CardContent from "@mui/joy/CardContent"
+import Typography from "@mui/joy/Typography"
+import Radio from "@mui/material/Radio"
+import RadioGroup from "@mui/material/RadioGroup"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import Alert from "@mui/material/Alert"
 
-
-export const WorkerContext = createContext(null);
+export const WorkerContext = createContext(null)
 
 const Edit = observer(() => {
-  let { id } = useParams();
-  const [w, setWorker] = useState(null);
-  const workerContext = { w, setWorker };
+  let { id } = useParams()
+  const [w, setWorker] = useState(null)
+  const workerContext = { w, setWorker }
+  const [dateError, setDateError] = useState(false)
 
   useEffect(() => {
     if (id) {
       const fetchWorker = async () => {
-        const fetchedWorker = await worker.getByIdWorkers(id);
-        setWorker(fetchedWorker);
-      };
-      fetchWorker();
+        const fetchedWorker = await worker.getByIdWorkers(id)
+        setWorker(fetchedWorker)
+      }
+      fetchWorker()
+    } else {
+      setWorker({
+        gender: -1,
+        firstName: "",
+        lastName: "",
+        startWorking: "",
+        birthDate: "",
+        rolesList: [],
+      })
     }
-    else {
-      setWorker({ gender: 0, firstName: "", lastName: "", startWorking:"", birthDate: "", rolesList: [] })
-    }
-  }, [id]);
+  }, [id])
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    birthDate: '',
-    startWorking: '',
-    gender: -1
-  });
+    firstName: "",
+    lastName: "",
+    birthDate: "",
+    startWorking: "",
+    gender: -1,
+  })
 
-  const { register, handleSubmit, reset, setValue } = useForm();
+  const { register, handleSubmit, reset, setValue } = useForm()
 
   useEffect(() => {
     if (w) {
       setFormData({
-        firstName: w.firstName || '',
-        lastName: w.lastName || '',
-        birthDate: w.birthDate || '',
-        startWorking: w.startWorking || '',
-        gender: w.gender
-      });
+        firstName: w.firstName || "",
+        lastName: w.lastName || "",
+        birthDate: w.birthDate || "",
+        startWorking: w.startWorking || "",
+        gender: w.gender,
+      })
     }
-  }, [w]);
+  }, [w])
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setWorker({...w,[name]:value})
-  };
-  const navigate = useNavigate();
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+    if (name === "startWorking" || name === "birthDate")
+      if (new Date(value) < new Date(w.birthDate)) setDateError(true)
+      else {
+        setDateError(false)
+        setWorker({ ...w, [name]: value })
+      }
+  }
+  const navigate = useNavigate()
 
   function update() {
-    formData.rolesList = w.rolesList
-    formData.gender = parseInt(formData.gender)
-    console.log(formData);
-    if (w.id)
-      worker.putWorkers(w.id, formData);
-    else
-      worker.postWorkers(formData);
-    navigate("/")
-    window.location.reload();
+    if (!dateError) {
+      formData.rolesList = w.rolesList
+      formData.gender = parseInt(formData.gender)
+      console.log(formData)
+      if (w.id) worker.putWorkers(w.id, formData)
+      else worker.postWorkers(formData)
+      navigate("/")
+      window.location.reload()
+    }
   }
   function cancel() {
     navigate("/")
-    window.location.reload();
+    window.location.reload()
   }
   return (
     <form onSubmit={handleSubmit(update)}>
       <Card
         data-resizable
-      // sx={{
-      //   textAlign: 'center',
-      //   alignItems: 'center',
-      //   width: 343,
-      //   overflow: 'auto',
-      //   resize: 'horizontal',
-      //   '--icon-size': '100px',
-      // }}
+        // sx={{
+        //   textAlign: 'center',
+        //   alignItems: 'center',
+        //   width: 343,
+        //   overflow: 'auto',
+        //   resize: 'horizontal',
+        //   '--icon-size': '100px',
+        // }}
       >
-
-        <Typography level="title-lg" sx={{ mt: 'calc(var(--icon-size) / 2)' }}>
+        <Typography level="title-lg" sx={{ mt: "calc(var(--icon-size) / 2)" }}>
           Edit details
         </Typography>
-        <CardContent sx={{ maxWidth: '40ch' }}>
+        <CardContent sx={{ maxWidth: "40ch" }}>
           <FormControl>
             <FormLabel>First Name:</FormLabel>
-            <Input value={formData.firstName} endDecorator={<PersonIcon />} name="firstName" onChange={handleInputChange} />
+            <Input
+              value={formData.firstName}
+              endDecorator={<PersonIcon />}
+              name="firstName"
+              onChange={handleInputChange}
+            />
           </FormControl>
           <FormControl>
             <FormLabel>Last Name:</FormLabel>
-            <Input value={formData.lastName} endDecorator={<PersonIcon />} name="lastName" onChange={handleInputChange} />
+            <Input
+              value={formData.lastName}
+              endDecorator={<PersonIcon />}
+              name="lastName"
+              onChange={handleInputChange}
+            />
           </FormControl>
           <FormControl>
             <FormLabel>Birth Date:</FormLabel>
-            <Input value={formData.birthDate} type="datetime-local" name="birthDate" onChange={handleInputChange} />
+            <Input
+              value={formData.birthDate}
+              type="datetime-local"
+              name="birthDate"
+              onChange={handleInputChange}
+            />
           </FormControl>
           <FormControl>
             <FormLabel>Start Working:</FormLabel>
-            <Input value={formData.startWorking} type="datetime-local" name="startWorking" onChange={handleInputChange} />
+            <Input
+              value={formData.startWorking}
+              type="datetime-local"
+              name="startWorking"
+              onChange={handleInputChange}
+            />
           </FormControl>
-
-
+          {dateError && <Alert severity="error"> Start date must be after birth date.</Alert>}
           <FormControl>
             <FormLabel id="demo-controlled-radio-buttons-group">Gender</FormLabel>
             <RadioGroup
@@ -413,7 +436,7 @@ const Edit = observer(() => {
             </RadioGroup>
           </FormControl>
           <WorkerContext.Provider value={workerContext}>
-            <Roles/>
+            <Roles />
             {/* <Roles w={w} /> */}
           </WorkerContext.Provider>
         </CardContent>
@@ -421,8 +444,8 @@ const Edit = observer(() => {
           orientation="vertical"
           buttonFlex={1}
           sx={{
-            '--Button-radius': '40px',
-            width: 'clamp(min(100%, 160px), 50%, min(100%, 200px))',
+            "--Button-radius": "40px",
+            width: "clamp(min(100%, 160px), 50%, min(100%, 200px))",
           }}
         >
           <Button type="submit" variant="solid" color="primary">
@@ -434,11 +457,10 @@ const Edit = observer(() => {
         </CardActions>
       </Card>
     </form>
-  );
-});
+  )
+})
 
-export default Edit;
-
+export default Edit
 
 // import * as React from 'react';
 // import { useState, useEffect, createContext } from 'react';
@@ -458,7 +480,6 @@ export default Edit;
 // import Radio from '@mui/material/Radio';
 // import RadioGroup from '@mui/material/RadioGroup';
 // import FormControlLabel from '@mui/material/FormControlLabel';
-
 
 // export const WorkerContext = createContext(null);
 
@@ -488,7 +509,6 @@ export default Edit;
 //       setWorker({ gender: -1, firstName: "", lastName: "", startWorking: "", birthDate: "", rolesList: [] })
 //     }
 //   }, [w,setValue]);
-
 
 //   const navigate = useNavigate();
 
@@ -532,12 +552,11 @@ export default Edit;
 //             <Input type="datetime-local" {...register("startWorking")} />
 //           </FormControl>
 
-
 //           <FormControl >
 //             <FormLabel id="demo-controlled-radio-buttons-group">Gender</FormLabel>
 //             <RadioGroup
 //               aria-labelledby="demo-controlled-radio-buttons-group"
-//               {...register("gender")} 
+//               {...register("gender")}
 //             >
 //               <FormControlLabel value={0} control={<Radio />} label="Male" />
 //               <FormControlLabel value={1} control={<Radio />} label="Female" />
@@ -570,9 +589,9 @@ export default Edit;
 
 // export default Edit;
 
-
 //העיגול של הכרטיס
-{/* <CardOverflow variant="solid" color="primary">
+{
+  /* <CardOverflow variant="solid" color="primary">
           <AspectRatio
             variant="outlined"
             color="primary"
@@ -591,4 +610,5 @@ export default Edit;
               <EditIcon color="primary" sx={{ fontSize: '4rem' }} />
             </div>
           </AspectRatio>
-        </CardOverflow> */}
+        </CardOverflow> */
+}

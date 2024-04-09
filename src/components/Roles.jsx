@@ -106,7 +106,6 @@
 //   );
 // }
 
-
 //עובד מעולה רק יש בעיה ב"האם מנהל" ולכן אני מנסה להשתמש בהוק-פורם
 // import * as React from 'react';
 // import { useForm } from 'react-hook-form';
@@ -221,7 +220,6 @@
 // //   }),
 // // };
 
-
 // const Roles = observer(({ w }) => {
 //   const handleAddRole = () => {
 //     // Implement logic to add a new role
@@ -253,9 +251,6 @@
 // });
 // export default Roles;
 
-
-
-
 //עובד מושלם כולל הכל למעט הוספת תפקיד ובחירת שם תפקיד מתוך תפריט בחירה
 // import * as React from 'react';
 // import tagRole from '../data/tagRole';
@@ -283,7 +278,6 @@
 // import FormGroup from '@mui/material/FormGroup';
 // import FormControlLabel from '@mui/material/FormControlLabel';
 
-
 // function Row(props) {
 //   const { role } = props;
 //   const [open, setOpen] = React.useState(false);
@@ -292,8 +286,6 @@
 //   //const   setWorker = useContext(WorkerContext).setWorker;
 
 //   const { register, handleSubmit, reset } = useForm();
-
-
 
 //   const handleDeleteRow = () => {
 //     w.rolesList = w.rolesList.filter(r => r.id !== role.id);
@@ -309,7 +301,7 @@
 //     };
 //     const updatedRolesList = w.rolesList.map(r => (r.id === role.id ? updatedRole : r));
 //     w.rolesList = updatedRolesList
-//     setWorker({...w}); 
+//     setWorker({...w});
 //     setOpen(false);
 //   };
 
@@ -394,73 +386,74 @@
 // });
 // export default Roles;
 
-
-
-
-
-import * as React from 'react';
-import tagRole from '../data/tagRole';
-import { useForm } from 'react-hook-form';
-import { WorkerContext } from './Edit';
-import { useContext, useState, useEffect } from 'react';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import { observer } from "mobx-react-lite";
-import { Button, Card, FormControl } from '@mui/material';
-import Input from '@mui/joy/Input';
-import FormLabel from '@mui/joy/FormLabel';
-import Checkbox from '@mui/material/Checkbox';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import InputLabel from '@mui/material/InputLabel';
-import NativeSelect from '@mui/material/NativeSelect';
-
+import * as React from "react"
+import tagRole from "../data/tagRole"
+import { useForm } from "react-hook-form"
+import { WorkerContext } from "./Edit"
+import { useContext, useState, useEffect } from "react"
+import Collapse from "@mui/material/Collapse"
+import IconButton from "@mui/material/IconButton"
+import Table from "@mui/material/Table"
+import TableBody from "@mui/material/TableBody"
+import TableCell from "@mui/material/TableCell"
+import TableContainer from "@mui/material/TableContainer"
+import TableHead from "@mui/material/TableHead"
+import TableRow from "@mui/material/TableRow"
+import Paper from "@mui/material/Paper"
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
+import EditIcon from "@mui/icons-material/Edit"
+import DeleteIcon from "@mui/icons-material/Delete"
+import AddIcon from "@mui/icons-material/Add"
+import { observer } from "mobx-react-lite"
+import { Button, Card, FormControl } from "@mui/material"
+import Input from "@mui/joy/Input"
+import FormLabel from "@mui/joy/FormLabel"
+import Checkbox from "@mui/material/Checkbox"
+import FormGroup from "@mui/material/FormGroup"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import InputLabel from "@mui/material/InputLabel"
+import NativeSelect from "@mui/material/NativeSelect"
+import Alert from "@mui/material/Alert"
 
 function Row(props) {
-  const { role } = props;
-  const [open, setOpen] = React.useState(false);
-  const { w, setWorker } = useContext(WorkerContext);
+  const { role } = props
+  const [open, setOpen] = React.useState(false)
+  const { w, setWorker } = useContext(WorkerContext)
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm()
 
   const handleDeleteRow = () => {
-    w.rolesList = w.rolesList.filter(r => r.id !== role.id);
-    setWorker({ ...w });
-  };
+    w.rolesList = w.rolesList.filter((r) => r.id !== role.id)
+    setWorker({ ...w })
+  }
 
   const handleFormSubmit = (data) => {
     const updatedRole = {
       id: role.id,
       tagRoleId: data.tagRoleId,
       isAdministrative: data.isAdministrative,
-      startRole: data.startRole
-    };
-    const updatedRolesList = w.rolesList.map(r => (r.id === role.id ? updatedRole : r));
+      startRole: data.startRole,
+    }
+    const updatedRolesList = w.rolesList.map((r) =>
+      r.tagRoleId === role.tagRoleId ? updatedRole : r,
+    )
     w.rolesList = updatedRolesList
-    setWorker({ ...w });
-    setOpen(false);
-  };
+    setWorker({ ...w })
+    setOpen(false)
+  }
+  function contain(id) {
+    return w.rolesList.find((r) => r.tagRoleId == id)
+  }
 
   return (
     <React.Fragment>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
+          <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <EditIcon />}
           </IconButton>
         </TableCell>
@@ -484,14 +477,23 @@ function Row(props) {
                 <NativeSelect
                   defaultValue={role.tagRoleId}
                   inputProps={{
-                    name: 'tagRoleId',
-                    id: 'uncontrolled-native',
+                    name: "tagRoleId",
+                    id: "uncontrolled-native",
                   }}
-                  {...register("tagRoleId")}
+                  {...register("tagRoleId", {
+                    validate: {
+                      newTagRole: (value) => !contain(value),
+                    },
+                  })}
                 >
-                  {tagRole.tags.map((t, i) => <option key={i} value={t.id}>{t.name}</option>)}
+                  {tagRole.tags.map((t, i) => (
+                    <option key={i} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
                 </NativeSelect>
               </FormControl>
+              {errors.tagRoleId && <Alert severity="error"> Exsit role.</Alert>}
               <FormGroup>
                 <FormControlLabel
                   control={<Checkbox defaultChecked={role.isAdministrative} />}
@@ -505,46 +507,48 @@ function Row(props) {
                   type="datetime-local"
                   {...register("startRole", {
                     validate: {
-                      isAfterBirthDate: value =>
-                        new Date(value) > new Date(w.birthDate) ||
-                        "Start date must be after birth date"
-                    }
+                      isAfterBirthDate: (value) => new Date(value) > new Date(w.startWorking),
+                    },
                   })}
                   defaultValue={role.startRole}
                 />
               </FormControl>
-              <Button type='submit' onClick={handleSubmit(handleFormSubmit)}>Submit</Button>
+              {errors.startRole && (
+                <Alert severity="error"> Start date must be after start working.</Alert>
+              )}
+              <Button type="submit" onClick={handleSubmit(handleFormSubmit)}>
+                Submit
+              </Button>
             </div>
           </Collapse>
         </TableCell>
       </TableRow>
     </React.Fragment>
-  );
+  )
 }
-
 
 //const Roles = observer(({ w }) => {
 const Roles = observer(() => {
-  const { w, setWorker } = useContext(WorkerContext);
-
+  const { w, setWorker } = useContext(WorkerContext)
   const handleAddRole = () => {
     w.rolesList?.push({ TagRoleId: 1, IsAdministrative: false, StartRole: new Date() })
-    console.log(JSON.stringify(w));
+    console.log(JSON.stringify(w))
     setWorker({ ...w })
-  };
+    setCount(count + 1)
+  }
   return (
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table">
         <TableHead>
           <TableRow>
             <TableCell />
-            <TableCell>Roles:
+            <TableCell>
+              Roles:
               <IconButton aria-label="add role" size="small" onClick={handleAddRole}>
                 <AddIcon />
               </IconButton>
             </TableCell>
-            <TableCell>
-            </TableCell>
+            <TableCell></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -554,6 +558,6 @@ const Roles = observer(() => {
         </TableBody>
       </Table>
     </TableContainer>
-  );
-});
-export default Roles;
+  )
+})
+export default Roles
